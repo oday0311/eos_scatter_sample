@@ -1,0 +1,184 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="eos.js"></script>
+    <script>
+
+
+        var scatter;
+        document.addEventListener('scatterLoaded', scatterExtension => {
+            // Scatter will now be available from the window scope.
+            // At this stage the connection to Scatter from the application is
+            // already encrypted.
+            scatter = window.scatter;
+
+        // It is good practice to take this off the window once you have
+        // a reference to it.
+        //window.scatter = null;
+
+        // If you want to require a specific version of Scatter
+        alert("hello");
+        //...
+        })
+        //
+
+
+        function requestScatter() {
+            // You can require certain fields
+            scatter.getIdentity().then(identity => {
+                //...
+            }).catch(error => {
+                //...
+            });
+        }
+
+
+
+        function requestSign(){
+            // Authenticate takes no parameters.
+            // It will fail if there is no identity bound to Scatter.
+            scatter.authenticate()
+                    .then(sig => {
+                // This will return your `location.host`
+                // signed with their Identity's private key.
+                // It has already been validated, but you can validate it yourself as well using eosjs-ecc.
+
+                ecc.verify(sig, location.host, scatter.identity.publicKey);
+            })
+            .catch(err => console.log('auth err', err))
+        }
+
+
+
+
+        var EOS ;
+        function initEOS() {
+            const network = {
+                blockchain:'eos',
+                host:'47.91.247.187',
+                port:8087
+            }
+
+            const eosOptions = {}
+
+            EOS = scatter.eos( network, Eos.Localnet, eosOptions,'http' );
+            var json = EOS.getBlock(1)
+            console.log("get block :" + json.toString());
+            console.log(EOS)
+
+
+            var info = EOS.getInfo();
+            console.log("get Info : " + info);
+
+            EOS.getCurrencyBalance('eosio.token', 'eosio').then(x => console.log(x))
+            var stats = EOS.getCurrencyStats();
+            console.log("current stats :" + stats)
+
+            EOS.getAccount({account_name:'alex'}).then(console.log);
+
+        }
+        function eosGetAccountBalance() {
+            EOS.getCurrencyBalance({code:'eosio.token',account:'alex',symbol:'EPRA'}).then(console.log);
+        }
+
+        function eosGetTable()
+        {
+
+            //().
+            EOS.getTableRows({
+                json: true,
+                code: 'alex',
+                scope: 'alex',
+                table: 'fancyad',
+                table_key: '',
+                limit: 2
+            }).then( console.log)
+                    .catch( console.error);
+        }
+
+
+
+        function EOSContract() {
+            EOS.contract('alex').then(contract=>{
+                contract.post('alex','content','targeturl','price');
+            })
+        }
+    
+
+        function EOSTransfer() {
+            EOS.transfer('alex','huang','10000.0000 EPRA','');
+        }
+
+
+
+
+    </script>
+</head>
+<body>
+See console object: Eos
+
+<div>
+    <button class="btn btn-primary"  onclick="requestScatter()" type="button">scatter-init</button>
+
+</div>
+<br>
+<div>
+    <button class="btn btn-primary"  onclick="requestSign()" type="button">scatter-sign</button>
+
+</div>
+
+<br>
+
+
+<div>
+    <button class="btn btn-primary"  onclick="initEOS()" type="button">EOS init</button>
+
+</div>
+
+<br>
+
+
+<div>
+    <button class="btn btn-primary"  onclick="eosGetAccountBalance()" type="button">EOS getBalance</button>
+
+</div>
+
+<br>
+
+
+<div>
+    <button class="btn btn-primary"  onclick="eosGetTable()" type="button">EOS getTable</button>
+
+</div>
+
+
+<br>
+
+
+
+<div>
+    <button class="btn btn-primary"  onclick="EOSTransfer()" type="button">EOS Transfer</button>
+
+</div>
+
+
+<br>
+
+
+<div>
+    <button class="btn btn-primary"  onclick="EOSContract()" type="button">EOS contract</button>
+
+</div>
+
+
+<br>
+
+
+
+
+
+
+
+</body>
+</html>
